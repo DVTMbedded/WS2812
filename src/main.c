@@ -1,12 +1,12 @@
 /**
-  ******************************************************************************
-  * @file    main.c
-  * @author  Denislav Trifonov
-  * @version V0.1
-  * @date    14-December-2019
-  * @brief   Default main function.
-  ******************************************************************************
-*/
+ ******************************************************************************
+ * @file    main.c
+ * @author  Denislav Trifonov
+ * @version V0.1
+ * @date    14-December-2019
+ * @brief   Default main function.
+ ******************************************************************************
+ */
 
 
 #include "stm32l4xx.h"
@@ -14,7 +14,7 @@
 #include "clock.h"
 #include "led.h"
 #include "ws2812.h"
-			
+
 
 
 int main(void)
@@ -27,9 +27,11 @@ int main(void)
 	LED_Init();
 	WS2812_Init();
 
+	WS2812_SetColor(BLUE);
+
 	while (1)
 	{
 
 	}
-	return 42; // Answer for everything ...
+	return 0;
 }

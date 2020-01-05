@@ -21,7 +21,7 @@ typedef enum {
 /** Public function prototypes */
 extern void WS2812_Init(void);
 extern void WS2812_SetNumberOfPixels(uint16_t nNumberOfLEDs);
-extern void WS2812_WriteColor(PIXEL_COLOR eColor);
+extern void WS2812_SetColor(PIXEL_COLOR eColor);
 
 
 

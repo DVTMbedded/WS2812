@@ -21,7 +21,7 @@
 static uint16_t g_nLedCntr_mS = 0;
 
 /**
-  * @brief  This function handles SysTick Handler, but only if no RTOS defines it.
+  * @brief  This function handles SysTick Handler.
   * @param  None
   * @retval None
   */
@@ -31,6 +31,19 @@ void SysTick_Handler(void)
 	{
 		LED_Toggle();
 		g_nLedCntr_mS = 0;
-		GPIOA->ODR   ^= 1;
+	}
+}
+
+/**
+  * @brief  This function handles DMA1_CHANNEL5 Handler.
+  * @param  None
+  * @retval None
+  */
+void DMA1_CH2_IRQHandler(void)
+{
+	if (DMA1->ISR & DMA_ISR_TCIF2)
+	{
+		LED_SetState(LED_ON);
+		DMA1->IFCR |= DMA_IFCR_CTCIF2;
 	}
 }
