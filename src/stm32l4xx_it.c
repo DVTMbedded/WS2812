@@ -43,7 +43,7 @@ void DMA1_CH2_IRQHandler(void)
 {
 	if (DMA1->ISR & DMA_ISR_TCIF2)
 	{
-		LED_SetState(LED_ON);
 		DMA1->IFCR |= DMA_IFCR_CTCIF2;
+		TIM2->CCR1  = TIM2->ARR;
 	}
 }

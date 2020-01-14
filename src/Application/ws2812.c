@@ -16,9 +16,10 @@
 //===================================
 /** Private Data */
 //===================================
-static uint16_t g_nPixelsNum = 50;
+static uint16_t g_nPixelsNum = 100;
 static uint16_t g_cMaximumPixels = 60;
 static uint32_t g_arrPixelsData[60 * 24 + 50];
+
 
 //===================================
 /** Public functions definitions */
@@ -52,11 +53,11 @@ void WS2812_Init()
 	TIM2->ARR  = 100; // 1 Clock tick = 12.5 nS. Set timer period to 1.25 uS
 
 	// Configure Capture Compare Channel 1 as Output in PWM Mode.
+	TIM2->CCMR1 |= (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2); // PWM mode 1 - channel is active as long as TIMx_CNT<TIMx_CCR1 else inactive.
 	TIM2->CCMR1 &= ~TIM_CCMR1_CC1S; // Configure Capture Compate Channel 1 as output
-	TIM2->CCMR1 |= (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2); // Configure channel in PWM Mode '1'
-	TIM2->CCER  |= (TIM_CCER_CC1E | TIM_CCER_CC1P); // Enable Capture Compare Channel 1
+	TIM2->CCER  |= (TIM_CCER_CC1E); // Enable Capture Compare Channel 1
 	TIM2->CCER  &= ~(TIM_CCER_CC1NP); // In output mode this bit has to be keep in 0
-	TIM2->CCR1  = TIM2->ARR + 1; // Set Duty Cycle to 50 %.
+	TIM2->CCR1  = 0; // Set Duty Cycle to 100 %.
 
 	// Enable timer interrupts at nested vector interrupt controller (NVIC)
 	NVIC_SetPriority(TIM2_IRQn, 1);
@@ -83,14 +84,15 @@ void WS2812_Init()
 			DMA_CCR_MSIZE_1 | DMA_CCR_TCIE | DMA_CCR_TEIE);
 
 	// Configure PA0 in alternate function mode
+	GPIOA->MODER   &= ~GPIO_MODER_MODE0;
 	GPIOA->MODER   |= GPIO_MODER_MODE0_1;     // select alternate function mode
 	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED0_1; // set the port speed to high
 	GPIOA->AFR[0]  |= GPIO_AFRL_AFSEL0_0;     // Select AF1 as alternate function
 
 	// Initialize the pixels array - first 50 pulses of data stream are logical zero because of the reset procedure.
-	for (uint16_t idx = 0; idx < g_cMaximumPixels; idx ++)
+	for (uint16_t idx = 0; idx < g_nPixelsNum; idx ++)
 	{
-		g_arrPixelsData[idx] = (33 * TIM2->ARR) / 100;
+		g_arrPixelsData[idx] = 0;
 	}
 
 	// Enable the timer
@@ -126,76 +128,28 @@ void WS2812_SetColor(PIXEL_COLOR eColor)
 	DMA1_Channel2->CCR &= ~DMA_CCR_EN;   // Disable DMA channel
 	TIM2->DIER         &= ~TIM_DIER_UDE; // Disable DMA request enable
 
-	DMA1_Channel2->CNDTR = 50 + 24 * g_nPixelsNum;
+	//DMA1_Channel2->CNDTR = 50 + 24 * g_nPixelsNum;
+	DMA1_Channel2->CNDTR = 124;
 
-	switch (eColor)
+
+	for (uint8_t i = 0; i < 8; i++)
 	{
-	case RED:
-		for (uint16_t i = 0; i < g_nPixelsNum; i++)
-		{
-			for (uint8_t j = 0; j < 24; j++)
-			{
-				if (j < 8 || j > 15)
-				{
-					g_arrPixelsData[j + 50] = 33;
-				}
-				else
-				{
-					g_arrPixelsData[j + 50] = 67;
-				}
-			}
-		}
-		break;
-
-	case GREEN:
-		for (uint16_t i = 0; i < g_nPixelsNum; i++)
-		{
-			for (uint8_t j = 0; j < 24; j++)
-			{
-				if (j < 8)
-				{
-					g_arrPixelsData[j + 50] = 67;
-				}
-				else
-				{
-					g_arrPixelsData[j + 50] = 33;
-				}
-			}
-		}
-		break;
-
-	case BLUE:
-		for (uint16_t i = 0; i < g_nPixelsNum; i++)
-		{
-			for (uint8_t j = 0; j < 24; j++)
-			{
-				if (j > 15)
-				{
-					g_arrPixelsData[j + 50] = 67;
-				}
-				else
-				{
-					g_arrPixelsData[j + 50] = 33;
-				}
-			}
-		}
-		break;
-
-	case WHITE:
-		for (uint16_t i = 0; i < g_nPixelsNum; i++)
-		{
-			for (uint8_t j = 0; j < 24; j++)
-			{
-				g_arrPixelsData[j + 50] = 67;
-			}
-		}
-		break;
-
-	default:
-		break;
+		g_arrPixelsData[i + 50 + 50] = 67; // red
 	}
+
+	for (uint8_t j = 0; j < 8; j++)
+	{
+		g_arrPixelsData[j + 58 + 50] = 33; // green
+	}
+
+	for (uint8_t k = 0; k < 8; k++)
+	{
+		g_arrPixelsData[k + 66 + 50] = 67; // blue
+	}
+
 
 	DMA1_Channel2->CCR |= DMA_CCR_EN;   // Enable DMA channel
 	TIM2->DIER         |= TIM_DIER_UDE; // Update DMA request enable
+
 }
 //===================================
