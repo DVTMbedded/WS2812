@@ -31,7 +31,7 @@ int main(void)
 
 	while (1)
 	{
-
+		Serial_Process();
 	}
 	return 0;
 }

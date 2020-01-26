@@ -7,23 +7,24 @@
  *  It provides 2 different interfaces for data transmit and reception:
  *   - Non-blocking using interrupt controller
  *   - Non-blocking using DMA controller
- *  The speed is configured to 115200 bps.
  */
 
 #include "usart.h"
 
-/** Private functions */
-
 /** Private data */
-
-/** Public functions definitions */
 
 /** Public data */
 uint8_t RxByte = 0;
 
+/** Private functions */
+
+/** Public functions definitions */
+
 /**
- * @brief:
- * @param:  none
+ * @brief:  This function initializes and enables the USART peripheral. Communication parameters are:
+ *          Start bit - 1; Data bits - 8; Stop bit - 1; Parity - none; Baud rate: 115200 bps.
+ *          USART global interrupt is enabled. Both Tx and Rx are enabled.
+ * @param:  UART - pointer to structure containing USART registers description
  * @return: none
  */
 //===================================
@@ -55,8 +56,11 @@ void Uart_Init(USART_TypeDef * UART)
 }
 
 /**
- * @brief:
- * @param:  none
+ * @brief:  This function sends one byte of data using the USART peripheral in interrupt mode.
+ *          After the data is successfully transmitted, an interrupt is generated and the corresponding
+ *          ISR is executed (see file stm32l4xx_it.c).
+ * @param1:  UART - pointer to structure containing USART registers description
+ * @param2:  TxData - 1 Byte of data to be transferred.
  * @return: none
  */
 //===================================
@@ -71,8 +75,10 @@ void Uart_Transmit_IT(USART_TypeDef * UART, uint8_t TxData)
 }
 
 /**
- * @brief:
- * @param:  none
+ * @brief:  This function enables the reception of one byte of data using the USART peripheral in interrupt mode.
+ *          After the data is successfully received, an interrupt is generated and the corresponding ISR is
+ *          executed (see file stm32l4xx_it.c).
+ * @param:  UART - pointer to structure containing USART registers description
  * @return: none
  */
 //===================================
@@ -81,5 +87,4 @@ void Uart_Receive_IT(USART_TypeDef * UART)
 {
 	UART->CR1 |= USART_CR1_RXNEIE; /* Rx register not empty interrupt enable. */
 }
-
 //===================================
