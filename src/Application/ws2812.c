@@ -16,9 +16,9 @@
 //===================================
 /** Private Data */
 //===================================
-static uint16_t g_nPixelsNum = 100;
+static uint16_t g_nPixelsNum = 1;
 static uint16_t g_cMaximumPixels = 60;
-static uint32_t g_arrPixelsData[60 * 24 + 50];
+static uint32_t g_arrPixelsData[124];
 
 
 //===================================
@@ -57,7 +57,7 @@ void WS2812_Init()
 	TIM2->CCMR1 &= ~TIM_CCMR1_CC1S; // Configure Capture Compate Channel 1 as output
 	TIM2->CCER  |= (TIM_CCER_CC1E); // Enable Capture Compare Channel 1
 	TIM2->CCER  &= ~(TIM_CCER_CC1NP); // In output mode this bit has to be keep in 0
-	TIM2->CCR1  = 0; // Set Duty Cycle to 100 %.
+	TIM2->CCR1  = 0; // Set Duty Cycle to 0 %.
 
 	// Enable timer interrupts at nested vector interrupt controller (NVIC)
 	NVIC_SetPriority(TIM2_IRQn, 1);
@@ -89,8 +89,8 @@ void WS2812_Init()
 	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED0_1; // set the port speed to high
 	GPIOA->AFR[0]  |= GPIO_AFRL_AFSEL0_0;     // Select AF1 as alternate function
 
-	// Initialize the pixels array - first 50 pulses of data stream are logical zero because of the reset procedure.
-	for (uint16_t idx = 0; idx < g_nPixelsNum; idx ++)
+	// Initialize the pixels array
+	for (uint16_t idx = 0; idx < 124; idx ++)
 	{
 		g_arrPixelsData[idx] = 0;
 	}
@@ -129,27 +129,104 @@ void WS2812_SetColor(PIXEL_COLOR eColor)
 	TIM2->DIER         &= ~TIM_DIER_UDE; // Disable DMA request enable
 
 	//DMA1_Channel2->CNDTR = 50 + 24 * g_nPixelsNum;
-	DMA1_Channel2->CNDTR = 124;
+	DMA1_Channel2->CNDTR = 124; // Number of data to be transferred
 
-
-	for (uint8_t i = 0; i < 8; i++)
+	if (eColor == RED)
 	{
-		g_arrPixelsData[i + 50 + 50] = 67; // red
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			g_arrPixelsData[i + 50] = 67; // red
+		}
+
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			g_arrPixelsData[j + 58] = 33; // green
+		}
+
+		for (uint8_t k = 0; k < 8; k++)
+		{
+			g_arrPixelsData[k + 66] = 33; // blue
+		}
 	}
 
-	for (uint8_t j = 0; j < 8; j++)
+	else if (eColor == BLUE)
 	{
-		g_arrPixelsData[j + 58 + 50] = 33; // green
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			g_arrPixelsData[i + 50] = 33; // red
+		}
+
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			g_arrPixelsData[j + 58] = 33; // green
+		}
+
+		for (uint8_t k = 0; k < 8; k++)
+		{
+			g_arrPixelsData[k + 66] = 67; // blue
+		}
 	}
 
-	for (uint8_t k = 0; k < 8; k++)
+	else if (eColor == GREEN)
 	{
-		g_arrPixelsData[k + 66 + 50] = 67; // blue
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			g_arrPixelsData[i + 50] = 33; // red
+		}
+
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			g_arrPixelsData[j + 58] = 67; // green
+		}
+
+		for (uint8_t k = 0; k < 8; k++)
+		{
+			g_arrPixelsData[k + 66] = 33; // blue
+		}
 	}
 
+	else if (eColor == BLACK)
+	{
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			g_arrPixelsData[i + 50] = 33; // red
+		}
+
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			g_arrPixelsData[j + 58] = 33; // green
+		}
+
+		for (uint8_t k = 0; k < 8; k++)
+		{
+			g_arrPixelsData[k + 66] = 33; // blue
+		}
+	}
+
+	else if (eColor == WHITE)
+	{
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			g_arrPixelsData[i + 50] = 67; // red
+		}
+
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			g_arrPixelsData[j + 58] = 67; // green
+		}
+
+		for (uint8_t k = 0; k < 8; k++)
+		{
+			g_arrPixelsData[k + 66] = 67; // blue
+		}
+	}
+
+	for (uint8_t i = 74; i < 124; i++)
+	{
+		g_arrPixelsData[i] = 0;
+	}
 
 	DMA1_Channel2->CCR |= DMA_CCR_EN;   // Enable DMA channel
 	TIM2->DIER         |= TIM_DIER_UDE; // Update DMA request enable
-
 }
 //===================================

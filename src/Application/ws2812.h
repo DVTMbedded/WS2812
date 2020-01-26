@@ -11,11 +11,15 @@
 #include "stm32l4xx.h"
 
 /** Public data types */
+
+#define COLORS_SUPPORTED 4
+
 typedef enum {
 	RED   = 0,
 	GREEN = 1,
 	BLUE  = 2,
-	WHITE = 3
+	BLACK = 3,
+	WHITE = 4
 }PIXEL_COLOR;
 
 /** Public function prototypes */

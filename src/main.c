@@ -14,7 +14,7 @@
 #include "clock.h"
 #include "led.h"
 #include "ws2812.h"
-
+#include "serial.h"
 
 
 int main(void)
@@ -26,8 +26,8 @@ int main(void)
 	// Initialize peripherals
 	LED_Init();
 	WS2812_Init();
+	Serial_Init();
 
-	WS2812_SetColor(BLUE);
 
 	while (1)
 	{
