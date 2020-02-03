@@ -14,6 +14,7 @@ static void Service_SetColor(uint8_t *RxBuff);
 
 const char*  Services[] = {
 		"HELP",
+	        "SETC",
 		""
 };
 
